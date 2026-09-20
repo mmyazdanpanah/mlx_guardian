@@ -1,0 +1,11 @@
+[project]
+name = "mlx-guardian"
+version = "0.1.0"
+description = "Lightweight TUI guardian for MLX training and Apple Silicon health"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["rich>=13.7,<15"]
+license = {text = "MIT"}
+
+[project.scripts]
+mlx-guardian = "mlx_guardian:main"
