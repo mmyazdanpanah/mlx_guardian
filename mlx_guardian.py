@@ -46,26 +46,19 @@ class Metrics:
     tokens_per_sec: float | None = None
     trained_tokens: int | None = None
     peak_mem_gb: float | None = None
-    started_at: float = field(default_factory=time.monotonic)
     last_step_at: float | None = None
 
     @property
     def step_rate(self) -> float | None:
-        if self.step is None or self.last_step_at is None:
-            return self.it_per_sec
-        elapsed = self.last_step_at - self.started_at
-        if elapsed <= 0:
-            return self.it_per_sec
-        return self.step / elapsed
+        return self.it_per_sec
 
     def eta(self, total_steps: int | None) -> str:
         if not total_steps or self.step is None:
             return "—"
-        remaining = max(0, total_steps - self.step)
         rate = self.step_rate
         if not rate or rate <= 0:
             return "—"
-        return format_duration(remaining / rate)
+        return format_duration(max(0, total_steps - self.step) / rate)
 
 
 @dataclass
@@ -169,8 +162,8 @@ def parse_metrics(line: str) -> dict | None:
 
 
 def checkpoint_step(path: Path) -> int | None:
-    match = CHECKPOINT_RE.search(path.name)
-    return int(match.group(1)) if match else None
+    matches = CHECKPOINT_RE.findall(path.name)
+    return int(matches[-1]) if matches else None
 
 
 def latest_checkpoint(directory: Path | None) -> int | None:
@@ -259,10 +252,7 @@ def start_training(args: argparse.Namespace) -> tuple[subprocess.Popen, MonitorS
 
 def consume_output(proc: subprocess.Popen, state: MonitorState) -> None:
     assert proc.stdout is not None
-    if state.log_path:
-        log = state.log_path.open("a", encoding="utf-8")
-    else:
-        log = open(os.devnull, "w")
+    log = state.log_path.open("a", encoding="utf-8") if state.log_path else open(os.devnull, "w")
     try:
         for raw in iter(proc.stdout.readline, ""):
             if not raw:
@@ -334,7 +324,7 @@ def render(pid: int, state: MonitorState, total_steps: int | None, checkpoint_di
     apple.add_row("CPU", f"{cpu:.1f}%")
     apple.add_row("MEMORY", free)
     apple.add_row("COMPRESSED", compressed)
-    apple.add_row("SWAP", str(swap))
+    apple.add_row("SWAP PAGES", str(swap))
     apple.add_row(
         "THERMAL",
         "[green]🟢 NORMAL[/green]" if thermal == "NORMAL" else "[red]🔴 WARNING[/red]",
@@ -419,7 +409,7 @@ def supervise(args: argparse.Namespace) -> int:
     return state.returncode or 0
 
 
-def monitor(pid: int, telemetry: Path | None = None) -> int:
+def monitor(pid: int) -> int:
     state = MonitorState(mode="passive")
     console = Console()
     with Live(
@@ -468,6 +458,8 @@ def parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
+    if len(sys.argv) > 1 and sys.argv[1].isdigit():
+        sys.argv.insert(1, "monitor")
     args = parser().parse_args()
     if args.command == "train":
         if args.trainer_args and args.trainer_args[0] == "--":
