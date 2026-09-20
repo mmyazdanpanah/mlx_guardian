@@ -59,6 +59,63 @@ python -m pip install .
 mlx-guardian --version
 ~~~
 
+## Launcher
+
+For a repository checkout, launch.sh is the recommended local launcher. It automatically prefers .venv/bin/python, falls back to python3, and forwards every CLI argument unchanged.
+
+~~~bash
+./launch.sh --help
+~~~
+
+The launcher is intentionally thin: all real options live in the Python CLI, so there is only one source of truth.
+
+Useful startup adjustments include:
+
+~~~text
+train:
+  --script PATH              trainer script
+  --python PATH              Python interpreter
+  --cwd PATH                 trainer working directory
+  --total-steps N            exact target steps
+  --train-samples N          dataset size for target calculation
+  --batch-size N             per-device batch size
+  --grad-accumulation N      gradient accumulation steps
+  --epochs N                 number of epochs
+  --checkpoint-dir PATH      numbered checkpoint directory
+
+monitor:
+  PID                         existing process to watch
+~~~
+
+Trainer-specific arguments can be passed after --.
+
+Examples:
+
+~~~bash
+./launch.sh monitor 1412
+
+./launch.sh train \
+  --script ~/path/to/train.py \
+  --cwd ~/path/to/project \
+  --total-steps 22500
+
+./launch.sh train \
+  --script ~/path/to/train.py \
+  --cwd ~/path/to/project \
+  --train-samples 90000 \
+  --batch-size 2 \
+  --grad-accumulation 4 \
+  --epochs 2 \
+  --checkpoint-dir ~/path/to/adapters
+
+./launch.sh train \
+  --script ~/path/to/train.py \
+  --cwd ~/path/to/project \
+  -- --config config.yaml
+~~~
+
+The installed mlx-guardian command exposes the same CLI.
+
 ## Supervise a training run
 
 ~~~bash
