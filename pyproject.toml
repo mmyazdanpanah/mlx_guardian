@@ -1,11 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "mlx-guardian"
-version = "0.1.0"
-description = "Lightweight TUI guardian for MLX training and Apple Silicon health"
+version = "1.0.0"
+description = "Safe, lightweight TUI supervisor and monitor for MLX training on macOS"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = ["rich>=13.7,<15"]
-license = {text = "MIT"}
+license = { text = "MIT" }
+authors = [{ name = "Mohammad Mostafa Yazdanpanah" }]
 
 [project.scripts]
 mlx-guardian = "mlx_guardian:main"
