@@ -5,17 +5,17 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-PYTHON_BIN="${MLX_GUARDIAN_PYTHON:-}"
+LAUNCHER_PYTHON="${MLX_GUARDIAN_LAUNCHER_PYTHON:-}"
 
-if [[ -z "$PYTHON_BIN" ]]; then
+if [[ -z "$LAUNCHER_PYTHON" ]]; then
   if [[ -x "$ROOT_DIR/.venv/bin/python" ]]; then
-    PYTHON_BIN="$ROOT_DIR/.venv/bin/python"
+    LAUNCHER_PYTHON="$ROOT_DIR/.venv/bin/python"
   elif command -v python3 >/dev/null 2>&1; then
-    PYTHON_BIN="$(command -v python3)"
+    LAUNCHER_PYTHON="$(command -v python3)"
   else
     echo "ERROR: Python 3 not found." >&2
     exit 127
   fi
 fi
 
-exec "$PYTHON_BIN" "$ROOT_DIR/mlx_guardian.py" "$@"
+exec "$LAUNCHER_PYTHON" "$ROOT_DIR/mlx_guardian.py" "$@"
