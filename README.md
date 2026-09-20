@@ -61,13 +61,13 @@ mlx-guardian --version
 
 ## Launcher
 
-For a repository checkout, launch.sh is the recommended local launcher. It automatically prefers .venv/bin/python, falls back to python3, and forwards every CLI argument unchanged.
+For a repository checkout, launch.sh is the recommended local launcher. It automatically prefers .venv/bin/python, falls back to python3, and forwards every CLI argument unchanged. It deliberately does not use MLX_GUARDIAN_PYTHON for Guardian itself: that variable is reserved for the trainer subprocess.
 
 ~~~bash
 ./launch.sh --help
 ~~~
 
-The launcher is intentionally thin: all real options live in the Python CLI, so there is only one source of truth.
+The launcher is intentionally thin: all real options live in the Python CLI, so there is only one source of truth. If you need to override the Python used to run Guardian itself, use MLX_GUARDIAN_LAUNCHER_PYTHON.
 
 Useful startup adjustments include:
 
@@ -176,8 +176,11 @@ Avoid putting machine-specific paths in the repository. Environment variables ca
 
 ~~~bash
 export MLX_GUARDIAN_TRAINER="$HOME/path/to/train.py"
-export MLX_GUARDIAN_PYTHON="$HOME/path/to/venv/bin/python3"
+export MLX_GUARDIAN_PYTHON="$HOME/path/to/venv/bin/python3"  # trainer Python
 export MLX_GUARDIAN_CWD="$HOME/path/to/project"
+
+# Optional: only when the launcher's own Python must be overridden.
+# export MLX_GUARDIAN_LAUNCHER_PYTHON="$HOME/path/to/guardian-venv/bin/python3"
 ~~~
 
 Then:
